@@ -11,6 +11,11 @@ import javafx.stage.Stage;
 import organs.instruments.Heart;
 import organs.instruments.Lungs;
 import organs.instruments.Trachea;
+import organs.instruments.Diaphragm;
+import organs.instruments.Intestines;
+import organs.instruments.Stomach;
+import organs.instruments.Kidneys;
+import organs.instruments.Appendix;
 
 
 public class OrganApp extends Application {
@@ -42,8 +47,13 @@ public class OrganApp extends Application {
         
         Button heart      = debugBox("HEART",       30, 330);
         heart.setOnAction(e -> heartInstrument.play());
-        Button diaphragm  = debugBox("DIAPHRAGM",   30, 450);
-        Button appendix   = debugBox("APPENDIX",    30, 650);
+        Diaphragm diaphragmInstrument = new Diaphragm();
+        Button diaphragm = debugBox("DIAPHRAGM", 30, 450);
+        diaphragm.setOnAction(e -> diaphragmInstrument.play());
+        
+        Appendix appendixInstrument = new Appendix();
+        Button appendix = debugBox("APPENDIX", 30, 650);
+        appendix.setOnAction(e -> appendixInstrument.play());
 
         // ---------------- RIGHT SIDE ORGANS ----------------
         Lungs lungsInstrument = new Lungs();
@@ -51,9 +61,21 @@ public class OrganApp extends Application {
         lungs.setOnMousePressed(e -> lungsInstrument.start());
         lungs.setOnMouseReleased(e -> lungsInstrument.stop());
         
-        Button stomach    = debugBox("STOMACH",     590, 250);
-        Button kidneys    = debugBox("KIDNEYS",     590, 440);
-        Button intestines = debugBox("INTESTINES",  590, 650);
+        Stomach stomachInstrument = new Stomach();
+        Button stomach = debugBox("STOMACH", 590, 250);
+
+        stomach.setOnMousePressed(e -> stomachInstrument.start());
+        stomach.setOnMouseReleased(e -> stomachInstrument.stop());
+
+        Kidneys kidneysInstrument = new Kidneys();
+        Button kidneys = debugBox("KIDNEYS", 590, 440);
+        kidneys.setOnAction(e -> kidneysInstrument.play());
+
+        Intestines intestinesInstrument = new Intestines();
+        Button intestines = debugBox("INTESTINES", 590, 650);
+
+        intestines.setOnMousePressed(e -> intestinesInstrument.start());
+        intestines.setOnMouseReleased(e -> intestinesInstrument.stop());
 
         root.getChildren().addAll(
             vocalCords,
