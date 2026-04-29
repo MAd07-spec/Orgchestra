@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.scene.input.KeyCode;
 
 import organs.instruments.Heart;
 import organs.instruments.Lungs;
@@ -17,91 +18,107 @@ import organs.instruments.Stomach;
 import organs.instruments.Kidneys;
 import organs.instruments.Appendix;
 
-
 public class OrganApp extends Application {
 
     @Override
     public void start(Stage stage) {
 
-        System.out.println(">>> SIDE ORGAN DEBUG MODE <<<");
-
         Pane root = new Pane();
 
-        Heart heartInstrument = new Heart();
+        // -------- INSTRUMENTS --------
+        Heart heart = new Heart();
+        Lungs lungs = new Lungs();
+        Trachea trachea = new Trachea();
+        Diaphragm diaphragm = new Diaphragm();
+        Stomach stomach = new Stomach();
+        Kidneys kidneys = new Kidneys();
+        Intestines intestines = new Intestines();
+        Appendix appendix = new Appendix();
 
-        // ---------------- BODY IMAGE ----------------
-        Image bodyImage = new Image("file:resources/body.png");
-        ImageView bodyView = new ImageView(bodyImage);
+        // -------- BODY IMAGE --------
+        ImageView bodyView = new ImageView(new Image("file:resources/body.png"));
         bodyView.setFitWidth(800);
         bodyView.setPreserveRatio(true);
         root.getChildren().add(bodyView);
 
-        // ---------------- LEFT SIDE ORGANS ----------------
+        // -------- LEFT SIDE --------
         Button vocalCords = debugBox("VOCAL CORDS", 30, 60);
-        
-        Trachea trachea = new Trachea();
-        Button tracheaBtn = debugBox("TRACHEA", 30, 180);
 
+        Button tracheaBtn = debugBox("TRACHEA (T)", 30, 180);
         tracheaBtn.setOnMousePressed(e -> trachea.start());
         tracheaBtn.setOnMouseReleased(e -> trachea.stop());
-        
-        Button heart      = debugBox("HEART",       30, 330);
-        heart.setOnAction(e -> heartInstrument.play());
-        Diaphragm diaphragmInstrument = new Diaphragm();
-        Button diaphragm = debugBox("DIAPHRAGM", 30, 450);
-        diaphragm.setOnAction(e -> diaphragmInstrument.play());
-        
-        Appendix appendixInstrument = new Appendix();
-        Button appendix = debugBox("APPENDIX", 30, 650);
-        appendix.setOnAction(e -> appendixInstrument.play());
 
-        // ---------------- RIGHT SIDE ORGANS ----------------
-        Lungs lungsInstrument = new Lungs();
-        Button lungs = debugBox("LUNGS", 590, 90);
-        lungs.setOnMousePressed(e -> lungsInstrument.start());
-        lungs.setOnMouseReleased(e -> lungsInstrument.stop());
-        
-        Stomach stomachInstrument = new Stomach();
-        Button stomach = debugBox("STOMACH", 590, 250);
+        Button heartBtn = debugBox("HEART (H)", 30, 330);
+        heartBtn.setOnAction(e -> heart.play());
 
-        stomach.setOnMousePressed(e -> stomachInstrument.start());
-        stomach.setOnMouseReleased(e -> stomachInstrument.stop());
+        Button diaphragmBtn = debugBox("DIAPHRAGM (D)", 30, 450);
+        diaphragmBtn.setOnAction(e -> diaphragm.play());
 
-        Kidneys kidneysInstrument = new Kidneys();
-        Button kidneys = debugBox("KIDNEYS", 590, 440);
-        kidneys.setOnAction(e -> kidneysInstrument.play());
+        Button appendixBtn = debugBox("APPENDIX (A)", 30, 650);
+        appendixBtn.setOnAction(e -> appendix.play());
 
-        Intestines intestinesInstrument = new Intestines();
-        Button intestines = debugBox("INTESTINES", 590, 650);
+        // -------- RIGHT SIDE --------
+        Button lungsBtn = debugBox("LUNGS (L)", 590, 90);
+        lungsBtn.setOnMousePressed(e -> lungs.start());
+        lungsBtn.setOnMouseReleased(e -> lungs.stop());
 
-        intestines.setOnMousePressed(e -> intestinesInstrument.start());
-        intestines.setOnMouseReleased(e -> intestinesInstrument.stop());
+        Button stomachBtn = debugBox("STOMACH (S)", 590, 250);
+        stomachBtn.setOnMousePressed(e -> stomach.start());
+        stomachBtn.setOnMouseReleased(e -> stomach.stop());
+
+        Button kidneysBtn = debugBox("KIDNEYS (K)", 590, 440);
+        kidneysBtn.setOnAction(e -> kidneys.play());
+
+        Button intestinesBtn = debugBox("INTESTINES (I)", 590, 650);
+        intestinesBtn.setOnMousePressed(e -> intestines.start());
+        intestinesBtn.setOnMouseReleased(e -> intestines.stop());
 
         root.getChildren().addAll(
             vocalCords,
             tracheaBtn,
-            heart,
-            diaphragm,
-            appendix,
-            lungs,
-            stomach,
-            kidneys,
-            intestines
+            heartBtn,
+            diaphragmBtn,
+            appendixBtn,
+            lungsBtn,
+            stomachBtn,
+            kidneysBtn,
+            intestinesBtn
         );
 
-
         Scene scene = new Scene(root, 800, 1000);
-        stage.setTitle("The Organs – Side Alignment Debug");
+
+        // -------- KEYBOARD CONTROLS --------
+        scene.setOnKeyPressed(e -> {
+            KeyCode k = e.getCode();
+            if (k == KeyCode.H) heart.play();
+            if (k == KeyCode.L) lungs.start();
+            if (k == KeyCode.T) trachea.start();
+            if (k == KeyCode.D) diaphragm.play();
+            if (k == KeyCode.S) stomach.start();
+            if (k == KeyCode.K) kidneys.play();
+            if (k == KeyCode.I) intestines.start();
+            if (k == KeyCode.A) appendix.play();
+        });
+
+        scene.setOnKeyReleased(e -> {
+            KeyCode k = e.getCode();
+            if (k == KeyCode.L) lungs.stop();
+            if (k == KeyCode.T) trachea.stop();
+            if (k == KeyCode.S) stomach.stop();
+            if (k == KeyCode.I) intestines.stop();
+        });
+
+        stage.setTitle("The Organs");
         stage.setScene(scene);
         stage.show();
     }
 
-    // ---------------- DEBUG BOX HELPER ----------------
+    // -------- DEBUG BUTTON --------
     private Button debugBox(String label, double x, double y) {
         Button b = new Button(label);
         b.setLayoutX(x);
         b.setLayoutY(y);
-        b.setPrefWidth(160);
+        b.setPrefWidth(180);
         b.setPrefHeight(50);
         b.setStyle(
             "-fx-background-color: yellow;" +
@@ -109,9 +126,6 @@ public class OrganApp extends Application {
             "-fx-font-weight: bold;" +
             "-fx-border-color: black;" +
             "-fx-border-width: 2;"
-        );
-        b.setOnAction(e ->
-            System.out.println(label + " CLICKED")
         );
         return b;
     }
