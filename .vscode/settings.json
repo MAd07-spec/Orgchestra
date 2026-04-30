@@ -1,0 +1,11 @@
+{
+    "[java]": {
+        "editor.defaultFormatter": "redhat.java",
+        "editor.formatOnSave": true
+    },
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.project.referencedLibraries": [],
+    "java.import.gradle.enabled": false,
+    "java.sources.excludePattern": "**/target/**"
+}
