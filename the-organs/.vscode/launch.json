@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Run The Organs",
+      "request": "launch",
+      "mainClass": "organs.MainApp",
+      "vmArgs": "--module-path ${workspaceFolder}/out;${workspaceFolder}/javafx-sdk/lib --add-modules javafx.controls,javafx.fxml,java.desktop",
+      "preLaunchTask": "compile",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

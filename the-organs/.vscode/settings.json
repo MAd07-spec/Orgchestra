@@ -1,0 +1,10 @@
+{
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "out",
+    "java.project.referencedLibraries": [
+        "javafx-sdk/lib/**/*.jar"
+    ],
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.project.exportJar.targetPath": "organs.jar",
+    "java.project.exportJar.mainClass": "organs.MainApp"
+}
