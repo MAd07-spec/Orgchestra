@@ -1,103 +1,108 @@
 package organs.instruments;
 
+import organs.audio.MidiEngine;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.util.Duration;
 
-import javax.sound.sampled.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class Stomach implements OrganInstrument {
 
-    private static final float SR = 44100f;
-    private final AtomicBoolean playing = new AtomicBoolean(false);
-    private Thread audioThread;
-    private int uses = 0;
+    private final MidiEngine midi = new MidiEngine();
+
+    private final int channel = 3;
+    private final int note = 38; // low drone (didgeridoo feel)
+
+    private boolean playing = false;
+
+    // ---- timing logic ----
+    private final Deque<Long> pressTimes = new ArrayDeque<>();
+    private static final long WINDOW_MS = 10_000;
+
+    public Stomach() {
+        midi.programChange(channel, 68); // reed / drone-like
+    }
 
     @Override
     public void play() {
-        // not used
+        // not used (hold instrument)
     }
 
     public void start() {
-        uses++;
+        long now = System.currentTimeMillis();
 
-        if (uses > 2) {
+        // remove old presses outside 10s window
+        while (!pressTimes.isEmpty() && now - pressTimes.peekFirst() > WINDOW_MS) {
+            pressTimes.pollFirst();
+        }
+
+        pressTimes.addLast(now);
+
+        int count = pressTimes.size();
+
+        if (count == 3) {
+            showWarningPopup();
+        }
+
+        if (count >= 5) {
             showSickPopup();
             return;
         }
 
-        if (playing.get()) return;
-        playing.set(true);
-
-        audioThread = new Thread(this::runDigeridoo);
-        audioThread.setDaemon(true);
-        audioThread.start();
-    }
-
-    public void stop() {
-        playing.set(false);
-    }
-
-    private void runDigeridoo() {
-        try {
-            AudioFormat format = new AudioFormat(SR, 16, 1, true, false);
-            SourceDataLine line = AudioSystem.getSourceDataLine(format);
-            line.open(format);
-            line.start();
-
-            byte[] buffer = new byte[1024];
-            double phase = 0;
-            double freq = 70 + Math.random() * 20;
-
-            while (playing.get()) {
-                for (int i = 0; i < buffer.length / 2; i++) {
-                    double growl = Math.tanh(Math.sin(phase) * 4);
-                    double air = (Math.random() * 2 - 1) * 0.15;
-                    double sample = growl * 0.8 + air;
-
-                    short out = (short)(sample * 16000);
-                    buffer[i * 2] = (byte)(out & 0xff);
-                    buffer[i * 2 + 1] = (byte)((out >> 8) & 0xff);
-
-                    phase += 2 * Math.PI * freq / SR;
-                }
-                line.write(buffer, 0, buffer.length);
-            }
-
-            line.stop();
-            line.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!playing) {
+            playing = true;
+            midi.noteOn(channel, note, 100);
         }
     }
 
-    // ---------- POPUP + COUNTDOWN ----------
+    public void stop() {
+        if (!playing) return;
+        playing = false;
+        midi.noteOff(channel, note);
+    }
+
+    // ---- POPUPS ----
+
+    private void showWarningPopup() {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Uh oh");
+            alert.setHeaderText("Something feels wrong...");
+            alert.setContentText(
+                "You've used the stomach 3 times in 10 seconds.\n" +
+                "Slow down or it will get sick."
+            );
+            alert.show();
+        });
+    }
+
     private void showSickPopup() {
         Platform.runLater(() -> {
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Uh oh");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Too late");
             alert.setHeaderText("i told you id get sick bwahhhhhh!");
 
-            Label countdownLabel = new Label("Closing in 3...");
-            alert.getDialogPane().setContent(countdownLabel);
+            Label countdown = new Label("Closing in 3...");
+            alert.getDialogPane().setContent(countdown);
             alert.show();
 
-            Timeline timeline = new Timeline(
-                new KeyFrame(Duration.seconds(1), e -> countdownLabel.setText("Closing in 2...")),
-                new KeyFrame(Duration.seconds(2), e -> countdownLabel.setText("Closing in 1...")),
-                new KeyFrame(Duration.seconds(3), e -> {
-                    alert.close();
-                    Platform.exit();
-                })
+            Timeline t = new Timeline(
+                new KeyFrame(Duration.seconds(1),
+                    e -> countdown.setText("Closing in 2...")),
+                new KeyFrame(Duration.seconds(2),
+                    e -> countdown.setText("Closing in 1...")),
+                new KeyFrame(Duration.seconds(3),
+                    e -> {
+                        alert.close();
+                        Platform.exit();
+                    })
             );
-
-            timeline.play();
+            t.play();
         });
     }
 }

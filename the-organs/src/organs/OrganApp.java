@@ -9,14 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.scene.input.KeyCode;
 
-import organs.instruments.Heart;
-import organs.instruments.Lungs;
-import organs.instruments.Trachea;
-import organs.instruments.Diaphragm;
-import organs.instruments.Intestines;
-import organs.instruments.Stomach;
-import organs.instruments.Kidneys;
-import organs.instruments.Appendix;
+import organs.instruments.*;
 
 public class OrganApp extends Application {
 
@@ -34,6 +27,7 @@ public class OrganApp extends Application {
         Kidneys kidneys = new Kidneys();
         Intestines intestines = new Intestines();
         Appendix appendix = new Appendix();
+        VocalCords vocalCords = new VocalCords();
 
         // -------- BODY IMAGE --------
         ImageView bodyView = new ImageView(new Image("file:resources/body.png"));
@@ -42,7 +36,8 @@ public class OrganApp extends Application {
         root.getChildren().add(bodyView);
 
         // -------- LEFT SIDE --------
-        Button vocalCords = debugBox("VOCAL CORDS", 30, 60);
+        Button vocalCordsBtn = debugBox("VOCAL CORDS (V)", 30, 60);
+        vocalCordsBtn.setOnAction(e -> vocalCords.play());
 
         Button tracheaBtn = debugBox("TRACHEA (T)", 30, 180);
         tracheaBtn.setOnMousePressed(e -> trachea.start());
@@ -69,12 +64,19 @@ public class OrganApp extends Application {
         Button kidneysBtn = debugBox("KIDNEYS (K)", 590, 440);
         kidneysBtn.setOnAction(e -> kidneys.play());
 
-        Button intestinesBtn = debugBox("INTESTINES (I)", 590, 650);
-        intestinesBtn.setOnMousePressed(e -> intestines.start());
+        Button intestinesBtn = debugBox("INTESTINES (drag mouse in box)", 590, 650);
+        intestinesBtn.setOnMousePressed(e -> {
+            double freq = 100 + (650 - e.getY()) * 2;
+            intestines.start(freq);
+        });
+        intestinesBtn.setOnMouseDragged(e -> {
+            double freq = 100 + (650 - e.getY()) * 2;
+            intestines.updateFrequency(freq + Math.random() * 30);
+        });
         intestinesBtn.setOnMouseReleased(e -> intestines.stop());
 
         root.getChildren().addAll(
-            vocalCords,
+            vocalCordsBtn,
             tracheaBtn,
             heartBtn,
             diaphragmBtn,
@@ -96,8 +98,9 @@ public class OrganApp extends Application {
             if (k == KeyCode.D) diaphragm.play();
             if (k == KeyCode.S) stomach.start();
             if (k == KeyCode.K) kidneys.play();
-            if (k == KeyCode.I) intestines.start();
+            if (k == KeyCode.I) intestines.start(220);
             if (k == KeyCode.A) appendix.play();
+            if (k == KeyCode.V) vocalCords.play();
         });
 
         scene.setOnKeyReleased(e -> {

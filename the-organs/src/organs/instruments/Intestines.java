@@ -6,28 +6,36 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Intestines implements OrganInstrument {
 
     private static final float SR = 44100f;
+
     private final AtomicBoolean playing = new AtomicBoolean(false);
     private Thread audioThread;
 
+    private volatile double frequency = 200;
+
     @Override
     public void play() {
-        // not used (hold instrument)
+        // not used
     }
 
-    public void start() {
+    public void start(double startFreq) {
         if (playing.get()) return;
         playing.set(true);
+        frequency = startFreq;
 
-        audioThread = new Thread(this::runChaos);
+        audioThread = new Thread(this::runSynth);
         audioThread.setDaemon(true);
         audioThread.start();
+    }
+
+    public void updateFrequency(double freq) {
+        this.frequency = freq;
     }
 
     public void stop() {
         playing.set(false);
     }
 
-    private void runChaos() {
+    private void runSynth() {
         try {
             AudioFormat format = new AudioFormat(SR, 16, 1, true, false);
             SourceDataLine line = AudioSystem.getSourceDataLine(format);
@@ -36,28 +44,25 @@ public class Intestines implements OrganInstrument {
 
             byte[] buffer = new byte[1024];
             double phase = 0;
-            double freq = 50 + Math.random() * 800;
 
             while (playing.get()) {
                 for (int i = 0; i < buffer.length / 2; i++) {
 
-                    // constantly mutate frequency + waveform
-                    freq += (Math.random() * 2 - 1) * 20;
-                    freq = Math.max(20, Math.min(2000, freq));
-
+                    // chaotic waveform
                     double wave =
-                            Math.sin(phase) *
-                            Math.signum(Math.sin(phase * 0.7));
+                        Math.sin(phase) *
+                        Math.signum(Math.sin(phase * 0.3));
 
-                    double noise = (Math.random() * 2 - 1) * 0.6;
+                    double noise =
+                        (Math.random() * 2 - 1) * 0.4;
 
-                    double sample = wave * 0.6 + noise;
+                    double sample = wave * 0.7 + noise * 0.3;
                     short out = (short)(sample * 14000);
 
                     buffer[i * 2]     = (byte)(out & 0xff);
                     buffer[i * 2 + 1] = (byte)((out >> 8) & 0xff);
 
-                    phase += 2 * Math.PI * freq / SR;
+                    phase += 2 * Math.PI * frequency / SR;
                 }
                 line.write(buffer, 0, buffer.length);
             }
