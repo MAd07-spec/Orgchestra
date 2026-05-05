@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=OrganApp
+comment1.params=stage
+comment1.target=void\ start(javafx.stage.Stage)
+comment2.params=
+comment2.target=java.lang.String\ findBodyImageUri()
+comment3.params=label\ x\ y
+comment3.target=javafx.scene.control.Button\ debugBox(java.lang.String,\ double,\ double)
+numComments=4

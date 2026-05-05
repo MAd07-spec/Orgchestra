@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=MidiEngine
+comment1.params=
+comment1.target=MidiEngine()
+comment2.params=channel\ program
+comment2.target=void\ programChange(int,\ int)
+comment3.params=channel\ note\ velocity
+comment3.target=void\ noteOn(int,\ int,\ int)
+comment4.params=channel\ note
+comment4.target=void\ noteOff(int,\ int)
+comment5.params=
+comment5.target=java.io.File\ findSoundFont()
+numComments=6

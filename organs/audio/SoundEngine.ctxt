@@ -1,0 +1,7 @@
+#BlueJ class context
+comment0.target=SoundEngine
+comment1.params=frequency\ durationMs
+comment1.target=void\ play808(double,\ int)
+comment2.params=frequency\ durationMs
+comment2.target=void\ playSustain(double,\ int)
+numComments=3
