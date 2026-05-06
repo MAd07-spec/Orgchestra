@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=Intestines
+comment1.params=
+comment1.target=void\ play()
+comment2.params=startFreq
+comment2.target=void\ start(double)
+comment3.params=freq
+comment3.target=void\ updateFrequency(double)
+comment4.params=
+comment4.target=void\ stop()
+comment5.params=
+comment5.target=void\ runSynth()
+numComments=6
